@@ -9,6 +9,7 @@
  *                {0, in, 0, 0} if sel == 01
  *                {0, 0, in, 0} if sel == 10
  *                {0, 0, 0, in} if sel == 11
+ *                {a, b, c,  d}
  */
 
 CHIP DMux4Way {
@@ -16,5 +17,11 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    // Put your code here:
+    DMux(in=in, sel=sel[0], a=a1, b=b1);
+    DMux(in=in, sel=sel[0], a=c1, b=d1);
+
+    Mux(a=a1, b=false, sel=sel[1], out=a);
+    Mux(a=b1, b=false, sel=sel[1], out=b);
+    Mux(a=false, b=c1, sel=sel[1], out=c);
+    Mux(a=false, b=d1, sel=sel[1], out=d);
 }
