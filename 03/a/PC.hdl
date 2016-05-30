@@ -16,5 +16,20 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // choose between reset and load
+    Not(in=reset, out=notreset);
+    And(a=load, b=notreset, out=loadandnotreset);
+    Mux16(a=false, b=in, sel=loadandnotreset, out=outresetorload);
+
+    // choose between above result and inc
+    Inc16(in=outt, out=outinc);
+    Not(in=load, out=notload);
+    And(a=inc, b=notload, out=incandnotload);
+    And(a=incandnotload, b=notreset, out=incandnotloadandnotreset);
+    Mux16(a=outresetorload, b=outinc, sel=incandnotloadandnotreset, out=outincorload);
+
+    // delay output
+    Or(a=load, b=inc, out=loadorinc);
+    Or(a=loadorinc, b=reset, out=loadorincorreset);
+    Register(in=outincorload, load=loadorincorreset, out=out, out=outt);
 }
