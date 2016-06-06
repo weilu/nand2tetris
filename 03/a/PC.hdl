@@ -21,7 +21,5 @@ CHIP PC {
     Mux16(a=incorelse, b=in, sel=load, out=loadorincorelse);
     Mux16(a=loadorincorelse, b=false, sel=reset, out=outtmp);
 
-    Or(a=load, b=inc, out=loadorinc);
-    Or(a=loadorinc, b=reset, out=loadorincorreset);
-    Register(in=outtmp, load=loadorincorreset, out=out, out=outt);
+    Register(in=outtmp, load=true, out=out, out=outt);
 }
