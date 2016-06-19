@@ -27,5 +27,17 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // if address < 16K
+    Not(in=address[14], out=notio);
+    And(a=load, b=notio, out=loadram);
+    RAM16K(in=in, load=loadram, address=address[0..13], out=outram);
+
+    // if address = 24576 => 0110000000000000
+    Keyboard(out=outkeyboard);
+
+    // else screen 0100000000000000 to 0110000000000000 - 1
+    And(a=load, b=address[14], out=loadscreen);
+    Screen(in=in, load=loadscreen, address=address[0..12], out=outscreen);
+
+    Mux4Way16(a=outram, b=outram, c=outscreen, d=outkeyboard, sel=address[13..14], out=out);
 }

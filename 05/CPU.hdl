@@ -38,6 +38,41 @@ CHIP CPU {
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
+    // A:  0 v v v  v  v  v  v  v  v  v  v  v  v  v
+    // C:  1 1 a c1 c2 c3 c4 c5 c6 d1 d2 d3 j1 j2 j3
     PARTS:
-    // Put your code here:
+    // instruction[15] == 0, then A: read instruction[0..14] to A, else C, read prev ALU output to A
+    Mux16(a[0..14]=instruction[0..14], b=aluouta, sel=instruction[15], out=ain);
+
+    // load A register if A instruction or C instruction dest writeA
+    Not(in=instruction[15], out=isa);
+    And(a=instruction[15], b=instruction[5], out=iscwritea);
+    Or(a=isa, b=iscwritea, out=readaorwritea);
+    ARegister(in=ain, load=readaorwritea, out=aout, out=aoutpc, out[0..14]=addressM);
+
+    // decide read from A or M, instruction[12] => a bit in C instruction
+    Mux16(a=aout, b=inM, sel=instruction[12], out=amin);
+
+    // comp bits
+    ALU(x=dout, y=amin, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], zr=aluzero, ng=alunegative, out=outM, out=aluouta, out=aluoutd);
+
+    // load D register if C instruction dest writeD
+    And(a=instruction[15], b=instruction[4], out=iscwrited);
+    DRegister(in=aluoutd, load=iscwrited, out=dout);
+
+    // The first and second d-bits code whether to store the computed value in the A register and in the D register, respectively. The third d-bit codes whether to store the computed value in M
+    And(a=instruction[15], b=instruction[3], out=writeM);
+
+    // PC
+    // alupositive iif aluzero == alunegative == 0
+    Or(a=aluzero, b=alunegative, out=aluzeroornegative);
+    Not(in=aluzeroornegative, out=alupositive);
+    And(a=alunegative, b=instruction[2], out=jumpnegative);
+    And(a=aluzero, b=instruction[1], out=jumpzero);
+    And(a=alupositive, b=instruction[0], out=jumppositive);
+    Or(a=jumpnegative, b=jumppositive, out=jumpporn);
+    Or(a=jumpporn, b=jumpzero, out=maybejumpload);
+    DMux(in=maybejumpload, sel=instruction[15], a=dummy, b=jumpload);
+    Not(in=jumpload, out=jumpinc);
+    PC(in=aoutpc, load=jumpload, inc=jumpinc, reset=reset, out[0..14]=pc);
 }
