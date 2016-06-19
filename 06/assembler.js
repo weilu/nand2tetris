@@ -10,31 +10,66 @@ var asmFile = process.argv[2]
 var instream = fs.createReadStream(asmFile, {encoding: 'utf8'})
 var lineReader = readline.createInterface({ input: instream })
 
+var symbols = {}
 var parsed = ''
+var SYMBOL_CONST = {
+  SCREEN: 16384,
+  KBD: 24576,
+  SP: 0,
+  LCL: 1,
+  ARG: 2,
+  THIS: 3,
+  THAT: 4
+}
 instream.on('end', function() {
-  console.log(parsed)
+  Object.assign(symbols, SYMBOL_CONST)
+  lines.forEach(function(line, i) {
+    if (line.startsWith('@')) {
+      parsed += parseAInstruction(line)
+    } else {
+      parsed += parseCInstruction(line)
+    }
+  })
   fs.writeFileSync(asmFile.replace(/asm$/, 'hack'), parsed)
 })
 
 var lineCount = 0
+var symbolRegex = /^\((.+)\)$/
+var lines = []
 lineReader.on('line', function (line) {
   line = line.trim()
   if (line.startsWith('//') || line.length === 0) {
     return
   }
 
-  if (line.startsWith('@')) {
-    parsed += parseAInstruction(line)
-  } else {
-    parsed += parseCInstruction(line)
+  // get rid of trailing comments
+  if (line.indexOf('//') > 0) {
+    line = line.substring(0, line.indexOf('//')).trim()
   }
-  console.log(lineCount, line)
-  lineCount++
+
+  var match = symbolRegex.exec(line)
+  if (match) {
+    symbols[match[1]] = lineCount
+  } else {
+    lineCount++
+    lines.push(line)
+  }
 })
 
+var varCount = 16
 function parseAInstruction(line) {
-  assert(line.length > 0, 'Invalid A instruction. @ must be followed with positive integer or variable')
+  assert(line.length > 1, 'Invalid A instruction. @ must be followed with positive integer or variable')
   var addr = line.substring(1)
+  var addrRIndex = parseInt(addr.substring(1), 10)
+  if (addr[0] === 'R' && addrRIndex >= 0 && addrRIndex <= 15) {
+    addr = addrRIndex
+  } else if (addr in symbols) {
+    addr = symbols[addr]
+  } else if (parseInt(addr, 10) !== parseInt(addr, 10)) {
+    symbols[addr] = varCount
+    addr = varCount
+    varCount++
+  }
   return '0' + decbin(parseInt(addr, 10), 15) + '\n'
 }
 
