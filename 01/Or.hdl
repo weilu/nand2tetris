@@ -18,7 +18,3 @@ CHIP Or {
     Not(in=b, out=notb);
     Nand(a=nota, b=notb, out=out);
 }
-
-0111
-0111
-1110 (14) -> -2
