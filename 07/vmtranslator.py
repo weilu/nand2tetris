@@ -65,17 +65,15 @@ def translate_pop(segment, i):
 def translate_add():
     return '\n'.join((
         '// === add ===',
-        '@SP // pop',
-        'M=M-1',
-        '@SP // D=*SP',
-        'A=M',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M   // D=*SP',
         'D=M',
-        '@SP // pop',
-        'M=M-1',
-        '@SP //*SP=D+*SP',
-        'A=M',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M   //*SP=D+*SP',
         'M=D+M',
-        '@SP //SP++',
+        '@SP   //SP++',
         'M=M+1',
         '\n'))
 
