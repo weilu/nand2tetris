@@ -11,6 +11,8 @@ ASM_END_BLOCK = '\n'.join((
     '  @END',
     '  0;JMP'))
 
+counter = 0
+
 def strip_comments(line):
     try:
         return line[0:line.index('//')].strip()
@@ -22,7 +24,6 @@ def parse(line):
     if not line:
         return ''
 
-    print('[DEBUG]: parsing {}'.format(line))
     words = [w.strip() for w in line.split(' ')]
     op = words[0]
 
@@ -30,6 +31,22 @@ def parse(line):
         validate_arithmetic_or_boolean(op)
         if op == 'add':
             return translate_add()
+        elif op == 'sub':
+            return translate_sub()
+        elif op == 'neg':
+            return translate_neg()
+        elif op == 'eq':
+            return translate_eq()
+        elif op == 'lt':
+            return translate_lt()
+        elif op == 'gt':
+            return translate_gt()
+        elif op == 'and':
+            return translate_and()
+        elif op == 'or':
+            return translate_or()
+        elif op == 'not':
+            return translate_not()
         else:
             raise ValueError('op {} is not supported yet'.format(op))
     else:
@@ -45,10 +62,10 @@ def translate_push(segment, i):
             '// === push constant {i} ===',
             '@{i} // D=i',
             'D=A',
-            '@SP //*SP=D',
+            '@SP  // *SP=D',
             'A=M',
             'M=D',
-            '@SP //SP++',
+            '@SP  // SP++',
             'M=M+1',
             '\n')).format(i=i)
     else:
@@ -65,15 +82,103 @@ def translate_pop(segment, i):
 def translate_add():
     return '\n'.join((
         '// === add ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        'M=D+M // *SP=D+*SP',
+        advance_stack_pointer()))
+
+def translate_sub():
+    return '\n'.join((
+        '// === sub ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        'M=M-D// *SP=*SP-D',
+        advance_stack_pointer()))
+
+def translate_neg():
+    return '\n'.join((
+        '// === neg ===',
         '@SP',
         'M=M-1 // pop',
-        'A=M   // D=*SP',
-        'D=M',
+        'A=M',
+        'M=-M  // *SP=-*SP',
+        advance_stack_pointer()))
+
+def translate_eq():
+    return '\n'.join((
+        '// === eq ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        set_stack_boolean_if('JEQ'),
+        advance_stack_pointer()))
+
+def translate_lt():
+    return '\n'.join((
+        '// === lt ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        set_stack_boolean_if('JLT'),
+        advance_stack_pointer()))
+
+def translate_gt():
+    return '\n'.join((
+        '// === gt ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        set_stack_boolean_if('JGT'),
+        advance_stack_pointer()))
+
+def translate_not():
+    return '\n'.join((
+        '// === not ===',
         '@SP',
         'M=M-1 // pop',
-        'A=M   //*SP=D+*SP',
-        'M=D+M',
-        '@SP   //SP++',
+        'A=M',
+        'M=!M  // *SP=!*SP',
+        advance_stack_pointer()))
+
+def set_stack_boolean_if(jump_condition):
+    global counter
+    counter += 1
+    return '\n'.join((
+        'D=M-D',
+        '@{condition}_SET_TRUE_{counter}',
+        'D;{condition}',
+        '({condition}_SET_FALSE_{counter})',
+        '  @SP',
+        '  A=M',
+        '  M=0',
+        '  @{condition}_RESUME_{counter}',
+        '  0;JMP',
+        '({condition}_SET_TRUE_{counter})',
+        '  @SP',
+        '  A=M',
+        '  M=-1',
+        '({condition}_RESUME_{counter})')) \
+    .format(condition=jump_condition, counter=counter)
+
+def translate_and():
+    return '\n'.join((
+        '// === and ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        'M=D&M // *SP=D&*SP',
+        advance_stack_pointer()))
+
+def translate_or():
+    return '\n'.join((
+        '// === or ===',
+        pop_two_assign_first_to_d_second_addr_to_a(),
+        'M=D|M // *SP=D|*SP',
+        advance_stack_pointer()))
+
+def pop_two_assign_first_to_d_second_addr_to_a():
+    return '\n'.join((
+        '@SP',
+        'M=M-1 // pop',
+        'A=M',
+        'D=M   // D=*SP',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M'))
+
+def advance_stack_pointer():
+    return '\n'.join((
+        '@SP   // SP++',
         'M=M+1',
         '\n'))
 
