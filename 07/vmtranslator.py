@@ -65,9 +65,7 @@ def translate_push(segment, i):
             '@SP  // *SP=D',
             'A=M',
             'M=D',
-            '@SP  // SP++',
-            'M=M+1',
-            '\n')).format(i=i)
+            advance_stack_pointer())).format(i=i)
     else:
         raise ValueError('pushing segment {} is not supported'.format(segment))
 
@@ -90,16 +88,14 @@ def translate_sub():
     return '\n'.join((
         '// === sub ===',
         pop_two_assign_first_to_d_second_addr_to_a(),
-        'M=M-D// *SP=*SP-D',
+        'M=M-D // *SP=*SP-D',
         advance_stack_pointer()))
 
 def translate_neg():
     return '\n'.join((
         '// === neg ===',
-        '@SP',
-        'M=M-1 // pop',
-        'A=M',
-        'M=-M  // *SP=-*SP',
+        pop_assign_addr_to_a(),
+        'M=-M // *SP=-*SP',
         advance_stack_pointer()))
 
 def translate_eq():
@@ -126,10 +122,8 @@ def translate_gt():
 def translate_not():
     return '\n'.join((
         '// === not ===',
-        '@SP',
-        'M=M-1 // pop',
-        'A=M',
-        'M=!M  // *SP=!*SP',
+        pop_assign_addr_to_a(),
+        'M=!M // *SP=!*SP',
         advance_stack_pointer()))
 
 def set_stack_boolean_if(jump_condition):
@@ -166,19 +160,21 @@ def translate_or():
         'M=D|M // *SP=D|*SP',
         advance_stack_pointer()))
 
-def pop_two_assign_first_to_d_second_addr_to_a():
+def pop_assign_addr_to_a():
     return '\n'.join((
-        '@SP',
-        'M=M-1 // pop',
-        'A=M',
-        'D=M   // D=*SP',
         '@SP',
         'M=M-1 // pop',
         'A=M'))
 
+def pop_two_assign_first_to_d_second_addr_to_a():
+    return '\n'.join((
+        pop_assign_addr_to_a(),
+        'D=M // D=*SP',
+        pop_assign_addr_to_a()))
+
 def advance_stack_pointer():
     return '\n'.join((
-        '@SP   // SP++',
+        '@SP // SP++',
         'M=M+1',
         '\n'))
 

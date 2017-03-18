@@ -4,7 +4,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 17 ===
@@ -13,14 +13,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === eq ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -38,7 +38,7 @@ D;JEQ
   A=M
   M=-1
 (JEQ_RESUME_1)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 17 ===
@@ -47,7 +47,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 16 ===
@@ -56,14 +56,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === eq ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -81,7 +81,7 @@ D;JEQ
   A=M
   M=-1
 (JEQ_RESUME_2)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 16 ===
@@ -90,7 +90,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 17 ===
@@ -99,14 +99,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === eq ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -124,7 +124,7 @@ D;JEQ
   A=M
   M=-1
 (JEQ_RESUME_3)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 892 ===
@@ -133,7 +133,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 891 ===
@@ -142,14 +142,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === lt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -167,7 +167,7 @@ D;JLT
   A=M
   M=-1
 (JLT_RESUME_4)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 891 ===
@@ -176,7 +176,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 892 ===
@@ -185,14 +185,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === lt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -210,7 +210,7 @@ D;JLT
   A=M
   M=-1
 (JLT_RESUME_5)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 891 ===
@@ -219,7 +219,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 891 ===
@@ -228,14 +228,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === lt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -253,7 +253,7 @@ D;JLT
   A=M
   M=-1
 (JLT_RESUME_6)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32767 ===
@@ -262,7 +262,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32766 ===
@@ -271,14 +271,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === gt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -296,7 +296,7 @@ D;JGT
   A=M
   M=-1
 (JGT_RESUME_7)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32766 ===
@@ -305,7 +305,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32767 ===
@@ -314,14 +314,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === gt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -339,7 +339,7 @@ D;JGT
   A=M
   M=-1
 (JGT_RESUME_8)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32766 ===
@@ -348,7 +348,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 32766 ===
@@ -357,14 +357,14 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === gt ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
@@ -382,7 +382,7 @@ D;JGT
   A=M
   M=-1
 (JGT_RESUME_9)
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 57 ===
@@ -391,7 +391,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 31 ===
@@ -400,7 +400,7 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 53 ===
@@ -409,19 +409,19 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === add ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
 M=D+M // *SP=D+*SP
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 112 ===
@@ -430,39 +430,39 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === sub ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
-M=M-D// *SP=*SP-D
-@SP   // SP++
+M=M-D // *SP=*SP-D
+@SP // SP++
 M=M+1
 
 // === neg ===
 @SP
 M=M-1 // pop
 A=M
-M=-M  // *SP=-*SP
-@SP   // SP++
+M=-M // *SP=-*SP
+@SP // SP++
 M=M+1
 
 // === and ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
 M=D&M // *SP=D&*SP
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === push constant 82 ===
@@ -471,27 +471,27 @@ D=A
 @SP  // *SP=D
 A=M
 M=D
-@SP  // SP++
+@SP // SP++
 M=M+1
 
 // === or ===
 @SP
 M=M-1 // pop
 A=M
-D=M   // D=*SP
+D=M // D=*SP
 @SP
 M=M-1 // pop
 A=M
 M=D|M // *SP=D|*SP
-@SP   // SP++
+@SP // SP++
 M=M+1
 
 // === not ===
 @SP
 M=M-1 // pop
 A=M
-M=!M  // *SP=!*SP
-@SP   // SP++
+M=!M // *SP=!*SP
+@SP // SP++
 M=M+1
 
 (END)
