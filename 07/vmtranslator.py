@@ -56,6 +56,14 @@ def parse(line):
         else:
             return translate_pop(words[1], words[2])
 
+SEGMENT_START_MAP = {
+        'local': 'LCL',
+        'argument': 'ARG',
+        'this': 'THIS',
+        'that': 'THAT',
+        'temp': 'R5',
+        }
+
 def translate_push(segment, i):
     if segment == 'constant':
         return '\n'.join((
@@ -66,16 +74,52 @@ def translate_push(segment, i):
             'A=M',
             'M=D',
             advance_stack_pointer())).format(i=i)
+    elif segment in set(('local', 'argument', 'this', 'that')):
+        return push_read_start_from('M', segment, i)
+    elif segment in set(('temp',)):
+        return push_read_start_from('A', segment, i)
     else:
         raise ValueError('pushing segment {} is not supported'.format(segment))
 
+def push_read_start_from(register, segment, i):
+    return '\n'.join((
+        '// === push {segment} {i} ===',
+        '@{start} // *{start}=D',
+        'D={register}',
+        '@{i} // D={start}+i',
+        'A=D+A',
+        'D=M',
+        '@SP  // *SP=D',
+        'A=M',
+        'M=D',
+        advance_stack_pointer())).format(register=register, segment=segment, i=i,
+                start=SEGMENT_START_MAP[segment])
+
 def translate_pop(segment, i):
     if segment == 'constant':
-        return '\n'.join((
-            '// === pop constant {i} === TODO',
-            '\n')).format(i=i)
+        raise ValueError('Cannot pop constant. Illegal vm command')
+    elif segment in set(('local', 'argument', 'this', 'that')):
+        return pop_read_from('M', segment, i)
+    elif segment in set(('temp',)):
+        return pop_read_from('A', segment, i)
     else:
         raise ValueError('popping segment {} is not supported'.format(segment))
+
+def pop_read_from(register, segment, i):
+        return '\n'.join((
+            '// === pop {segment} {i} ===',
+            '@{start} // D={start}',
+            'D={register}',
+            '@{i} // D={start}+i',
+            'D=D+A',
+            '@{segment}_{i} // {segment}_{i}=D',
+            'M=D',
+            pop_assign_addr_to_a(),
+            'D=M // D=*SP',
+            '@{segment}_{i} // *{segment}_{i}=D',
+            'A=M',
+            'M=D')).format(register=register, segment=segment, i=i,
+                    start=SEGMENT_START_MAP[segment])
 
 def translate_add():
     return '\n'.join((
