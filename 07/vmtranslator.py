@@ -7,7 +7,7 @@ ASM_END_BLOCK = '\n'.join((
     '  @END',
     '  0;JMP'))
 
-counter = 0
+boolean_label_counter = 0
 
 def strip_comments(line):
     try:
@@ -24,26 +24,9 @@ def parse(line):
     op = words[0]
 
     if len(words) == 1:
-        if op == 'add':
-            return translate_add()
-        elif op == 'sub':
-            return translate_sub()
-        elif op == 'neg':
-            return translate_neg()
-        elif op == 'eq':
-            return translate_eq()
-        elif op == 'lt':
-            return translate_lt()
-        elif op == 'gt':
-            return translate_gt()
-        elif op == 'and':
-            return translate_and()
-        elif op == 'or':
-            return translate_or()
-        elif op == 'not':
-            return translate_not()
-        else:
+        if op not in OP_TRANSLATE_FUNCTIONS:
             raise ValueError('Illegal arithmetic/boolean operator: {}'.format(op))
+        return OP_TRANSLATE_FUNCTIONS[op]()
     else:
         if op == 'push':
             return translate_push(words[1], words[2])
@@ -167,8 +150,8 @@ def translate_not():
         advance_stack_pointer()))
 
 def set_stack_boolean_if(jump_condition):
-    global counter
-    counter += 1
+    global boolean_label_counter
+    boolean_label_counter += 1
     return '\n'.join((
         'D=M-D',
         '@{condition}_SET_TRUE_{counter}',
@@ -184,7 +167,7 @@ def set_stack_boolean_if(jump_condition):
         '  A=M',
         '  M=-1',
         '({condition}_RESUME_{counter})')) \
-    .format(condition=jump_condition, counter=counter)
+    .format(condition=jump_condition, counter=boolean_label_counter)
 
 def translate_and():
     return '\n'.join((
@@ -217,6 +200,17 @@ def advance_stack_pointer():
         '@SP // SP++',
         'M=M+1',
         '\n'))
+
+OP_TRANSLATE_FUNCTIONS = {
+    'add': translate_add,
+    'sub': translate_sub,
+    'neg': translate_neg,
+    'eq': translate_eq,
+    'lt': translate_lt,
+    'gt': translate_gt,
+    'and': translate_and,
+    'or': translate_or,
+    'not': translate_not }
 
 def main():
     if len(sys.argv) != 2 or not sys.argv[1].endswith('.vm'):
