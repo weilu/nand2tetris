@@ -10,15 +10,17 @@ M=M+1
 // === pop pointer 0 ===
 @THIS // D=THIS
 D=A
-@pointer_0 // pointer_0=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@pointer_0 // *pointer_0=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 3040 ===
+M=D
+
+// === push constant 3040 ===
 @3040 // D=i
 D=A
 @SP  // *SP=D
@@ -30,15 +32,17 @@ M=M+1
 // === pop pointer 1 ===
 @THAT // D=THAT
 D=A
-@pointer_1 // pointer_1=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@pointer_1 // *pointer_1=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 32 ===
+M=D
+
+// === push constant 32 ===
 @32 // D=i
 D=A
 @SP  // *SP=D
@@ -52,13 +56,13 @@ M=M+1
 D=M
 @2 // D=THIS+i
 D=D+A
-@this_2 // this_2=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@this_2 // *this_2=D
+@tmp // *tmp=D
 A=M
 M=D
 
@@ -76,13 +80,13 @@ M=M+1
 D=M
 @6 // D=THAT+i
 D=D+A
-@that_6 // that_6=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@that_6 // *that_6=D
+@tmp // *tmp=D
 A=M
 M=D
 

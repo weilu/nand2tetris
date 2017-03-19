@@ -28,39 +28,39 @@ M=M+1
 // === pop static 8 ===
 @StaticTest.8 // D=StaticTest.8
 D=A
-@static_8 // static_8=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@static_8 // *static_8=D
+@tmp // *tmp=D
 A=M
 M=D
 
 // === pop static 3 ===
 @StaticTest.3 // D=StaticTest.3
 D=A
-@static_3 // static_3=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@static_3 // *static_3=D
+@tmp // *tmp=D
 A=M
 M=D
 
 // === pop static 1 ===
 @StaticTest.1 // D=StaticTest.1
 D=A
-@static_1 // static_1=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@static_1 // *static_1=D
+@tmp // *tmp=D
 A=M
 M=D
 

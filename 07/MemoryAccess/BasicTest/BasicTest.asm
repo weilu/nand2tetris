@@ -12,15 +12,17 @@ M=M+1
 D=M
 @0 // D=LCL+i
 D=D+A
-@local_0 // local_0=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@local_0 // *local_0=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 21 ===
+M=D
+
+// === push constant 21 ===
 @21 // D=i
 D=A
 @SP  // *SP=D
@@ -43,28 +45,32 @@ M=M+1
 D=M
 @2 // D=ARG+i
 D=D+A
-@argument_2 // argument_2=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@argument_2 // *argument_2=D
+@tmp // *tmp=D
 A=M
-M=D// === pop argument 1 ===
+M=D
+
+// === pop argument 1 ===
 @ARG // D=ARG
 D=M
 @1 // D=ARG+i
 D=D+A
-@argument_1 // argument_1=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@argument_1 // *argument_1=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 36 ===
+M=D
+
+// === push constant 36 ===
 @36 // D=i
 D=A
 @SP  // *SP=D
@@ -78,15 +84,17 @@ M=M+1
 D=M
 @6 // D=THIS+i
 D=D+A
-@this_6 // this_6=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@this_6 // *this_6=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 42 ===
+M=D
+
+// === push constant 42 ===
 @42 // D=i
 D=A
 @SP  // *SP=D
@@ -109,28 +117,32 @@ M=M+1
 D=M
 @5 // D=THAT+i
 D=D+A
-@that_5 // that_5=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@that_5 // *that_5=D
+@tmp // *tmp=D
 A=M
-M=D// === pop that 2 ===
+M=D
+
+// === pop that 2 ===
 @THAT // D=THAT
 D=M
 @2 // D=THAT+i
 D=D+A
-@that_2 // that_2=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@that_2 // *that_2=D
+@tmp // *tmp=D
 A=M
-M=D// === push constant 510 ===
+M=D
+
+// === push constant 510 ===
 @510 // D=i
 D=A
 @SP  // *SP=D
@@ -144,15 +156,17 @@ M=M+1
 D=A
 @6 // D=R5+i
 D=D+A
-@temp_6 // temp_6=D
+@tmp // tmp=D
 M=D
 @SP
 M=M-1 // pop
 A=M
 D=M // D=*SP
-@temp_6 // *temp_6=D
+@tmp // *tmp=D
 A=M
-M=D// === push local 0 ===
+M=D
+
+// === push local 0 ===
 @LCL // *LCL=D
 D=M
 @0 // D=LCL+i

@@ -111,49 +111,39 @@ def translate_pop(segment, i):
         return pop_read_from('A', segment, i)
     elif segment =='pointer':
         addr = get_pointer_addr(i)
-        return '\n'.join((
-            '// === pop {segment} {i} ===',
+        d_assignment_block = '\n'.join((
             '@{addr} // D={addr}',
-            'D=A',
-            '@{segment}_{i} // {segment}_{i}=D',
-            'M=D',
-            pop_assign_addr_to_a(),
-            'D=M // D=*SP',
-            '@{segment}_{i} // *{segment}_{i}=D',
-            'A=M',
-            'M=D')).format(addr=addr, segment=segment, i=i)
+            'D=A')).format(addr=addr)
+        return pop_write_to_address_d(segment, i, d_assignment_block)
     elif segment =='static':
-        return '\n'.join((
-            '// === pop {segment} {i} ===',
+        d_assignment_block = '\n'.join((
             '@{program}.{i} // D={program}.{i}',
-            'D=A',
-            '@{segment}_{i} // {segment}_{i}=D',
-            'M=D',
-            pop_assign_addr_to_a(),
-            'D=M // D=*SP',
-            '@{segment}_{i} // *{segment}_{i}=D',
-            'A=M',
-            'M=D',
-            '\n')).format(segment=segment, i=i, program=filename)
+            'D=A')).format(i=i, program=filename)
+        return pop_write_to_address_d(segment, i, d_assignment_block)
     else:
         raise ValueError('popping segment {} is not supported'.format(segment))
 
-def pop_read_from(register, segment, i):
+def pop_write_to_address_d(segment, i, d_assignment_block):
         return '\n'.join((
             '// === pop {segment} {i} ===',
+            d_assignment_block,
+            '@tmp // tmp=D',
+            'M=D',
+            pop_assign_addr_to_a(),
+            'D=M // D=*SP',
+            '@tmp // *tmp=D',
+            'A=M',
+            'M=D',
+            '\n')).format(segment=segment, i=i)
+
+def pop_read_from(register, segment, i):
+        d_assignment_block = '\n'.join((
             '@{start} // D={start}',
             'D={register}',
             '@{i} // D={start}+i',
             'D=D+A',
-            '@{segment}_{i} // {segment}_{i}=D',
-            'M=D',
-            pop_assign_addr_to_a(),
-            'D=M // D=*SP',
-            '@{segment}_{i} // *{segment}_{i}=D',
-            'A=M',
-            'M=D',
-            '\n')).format(register=register, segment=segment, i=i,
-                    start=SEGMENT_START_MAP[segment])
+            )).format(register=register, i=i, start=SEGMENT_START_MAP[segment])
+        return pop_write_to_address_d(segment, i, d_assignment_block)
 
 def translate_add():
     return '\n'.join((
