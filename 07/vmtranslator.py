@@ -8,6 +8,7 @@ ASM_END_BLOCK = '\n'.join((
     '  0;JMP'))
 
 boolean_label_counter = 0
+filename = ''
 
 def strip_comments(line):
     try:
@@ -75,6 +76,15 @@ def translate_push(segment, i):
             'A=M',
             'M=D',
             advance_stack_pointer())).format(i=i, addr=addr)
+    elif segment == 'static':
+        return '\n'.join((
+            '// === push static {i} ===',
+            '@{program}.{i} // D=*{program}.{i}',
+            'D=M',
+            '@SP  // *SP=D',
+            'A=M',
+            'M=D',
+            advance_stack_pointer())).format(i=i, program=filename)
     else:
         raise ValueError('pushing segment {} is not supported'.format(segment))
 
@@ -112,6 +122,19 @@ def translate_pop(segment, i):
             '@{segment}_{i} // *{segment}_{i}=D',
             'A=M',
             'M=D')).format(addr=addr, segment=segment, i=i)
+    elif segment =='static':
+        return '\n'.join((
+            '// === pop {segment} {i} ===',
+            '@{program}.{i} // D={program}.{i}',
+            'D=A',
+            '@{segment}_{i} // {segment}_{i}=D',
+            'M=D',
+            pop_assign_addr_to_a(),
+            'D=M // D=*SP',
+            '@{segment}_{i} // *{segment}_{i}=D',
+            'A=M',
+            'M=D',
+            '\n')).format(segment=segment, i=i, program=filename)
     else:
         raise ValueError('popping segment {} is not supported'.format(segment))
 
@@ -250,6 +273,8 @@ def main():
         return
 
     infile = sys.argv[1]
+    global filename
+    filename = infile.split('/')[-1].replace('.vm', '')
     outfile = infile.replace('vm', 'asm')
     with open(outfile, 'w') as output_file:
         with open(infile) as input_file:
