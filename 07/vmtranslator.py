@@ -43,6 +43,14 @@ SEGMENT_START_MAP = {
         'temp': 'R5',
         }
 
+def get_pointer_addr(i):
+    if i =='0':
+        return 'THIS'
+    elif i == '1':
+        return 'THAT'
+    else:
+        raise ValueError('Illegal value for i={} in `push pointer i`'.format(i))
+
 def translate_push(segment, i):
     if segment == 'constant':
         return '\n'.join((
@@ -57,6 +65,16 @@ def translate_push(segment, i):
         return push_read_start_from('M', segment, i)
     elif segment in set(('temp',)):
         return push_read_start_from('A', segment, i)
+    elif segment == 'pointer':
+        addr = get_pointer_addr(i)
+        return '\n'.join((
+            '// === push pointer {i} ===',
+            '@{addr} // D={addr}',
+            'D=M',
+            '@SP  // *SP=D',
+            'A=M',
+            'M=D',
+            advance_stack_pointer())).format(i=i, addr=addr)
     else:
         raise ValueError('pushing segment {} is not supported'.format(segment))
 
@@ -81,6 +99,19 @@ def translate_pop(segment, i):
         return pop_read_from('M', segment, i)
     elif segment in set(('temp',)):
         return pop_read_from('A', segment, i)
+    elif segment =='pointer':
+        addr = get_pointer_addr(i)
+        return '\n'.join((
+            '// === pop {segment} {i} ===',
+            '@{addr} // D={addr}',
+            'D=A',
+            '@{segment}_{i} // {segment}_{i}=D',
+            'M=D',
+            pop_assign_addr_to_a(),
+            'D=M // D=*SP',
+            '@{segment}_{i} // *{segment}_{i}=D',
+            'A=M',
+            'M=D')).format(addr=addr, segment=segment, i=i)
     else:
         raise ValueError('popping segment {} is not supported'.format(segment))
 
