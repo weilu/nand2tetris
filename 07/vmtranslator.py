@@ -97,7 +97,8 @@ def pop_read_from(register, segment, i):
             'D=M // D=*SP',
             '@{segment}_{i} // *{segment}_{i}=D',
             'A=M',
-            'M=D')).format(register=register, segment=segment, i=i,
+            'M=D',
+            '\n')).format(register=register, segment=segment, i=i,
                     start=SEGMENT_START_MAP[segment])
 
 def translate_add():
