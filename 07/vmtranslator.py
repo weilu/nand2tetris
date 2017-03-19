@@ -2,10 +2,6 @@
 
 import sys
 
-ARITHMETIC_OPS = set(('add', 'sub', 'neg', 'eq', 'lt', 'gt', ))
-BOOLEAN_OPS = set(('not', 'and', 'or'))
-STACK_OPS = set(('push', 'pop'))
-
 ASM_END_BLOCK = '\n'.join((
     '(END)',
     '  @END',
@@ -28,7 +24,6 @@ def parse(line):
     op = words[0]
 
     if len(words) == 1:
-        validate_arithmetic_or_boolean(op)
         if op == 'add':
             return translate_add()
         elif op == 'sub':
@@ -48,13 +43,14 @@ def parse(line):
         elif op == 'not':
             return translate_not()
         else:
-            raise ValueError('op {} is not supported yet'.format(op))
+            raise ValueError('Illegal arithmetic/boolean operator: {}'.format(op))
     else:
-        validate_stack(op)
         if op == 'push':
             return translate_push(words[1], words[2])
-        else:
+        elif op == 'pop':
             return translate_pop(words[1], words[2])
+        else:
+            raise ValueError('Illegal stack operator: {}'.format(op))
 
 SEGMENT_START_MAP = {
         'local': 'LCL',
@@ -221,14 +217,6 @@ def advance_stack_pointer():
         '@SP // SP++',
         'M=M+1',
         '\n'))
-
-def validate_arithmetic_or_boolean(op):
-    if op not in ARITHMETIC_OPS and op not in BOOLEAN_OPS:
-        raise ValueError('Illegal arithmetic/boolean operator: {}'.format(op))
-
-def validate_stack(op):
-    if op not in STACK_OPS:
-        raise ValueError('Illegal stack operator: {}'.format(op))
 
 def main():
     if len(sys.argv) != 2 or not sys.argv[1].endswith('.vm'):
