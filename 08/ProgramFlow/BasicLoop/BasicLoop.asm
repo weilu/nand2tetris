@@ -141,7 +141,7 @@ M=M+1
 M=M-1 // pop
 A=M
 D=M
-@LOOP_START
+@global$LOOP_START
 D;JNE
 
 // === push local 0 ===
