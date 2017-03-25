@@ -26,7 +26,7 @@ def parse(line):
 
     if len(words) == 1:
         if op not in OP_TRANSLATE_FUNCTIONS:
-            raise ValueError('Illegal arithmetic/boolean operator: {}'.format(op))
+            raise ValueError('Illegal operator: {}'.format(op))
         return OP_TRANSLATE_FUNCTIONS[op]()
     else:
         if op == 'push':
@@ -39,8 +39,27 @@ def parse(line):
             return translate_goto(words[1], conditional=True)
         elif op == 'goto':
             return translate_goto(words[1])
+        elif op == 'function':
+            return translate_function(words[1], words[2])
         else:
-            raise ValueError('Illegal stack operator: {}'.format(op))
+            raise ValueError('Illegal operator: {}'.format(op))
+
+def translate_function(function_name, arg_count):
+    return '\n'.join((
+        '// === function {name} ===',
+        '({name})',
+        '@{count}',
+        'D=A-1',
+        '({name}$INIT_LOCALS)',
+        '  @LCL',
+        '  A=M+D',
+        '  M=0',
+        '  D=D-1',
+        '  @SP',
+        '  M=M+1 // forward SP to skip local pointer addresses',
+        '  @{name}$INIT_LOCALS',
+        '  D;JGE',
+        '\n')).format(name=function_name, count=arg_count)
 
 def translate_label(label_name):
     return '\n'.join((
@@ -248,6 +267,60 @@ def translate_or():
         'M=D|M // *SP=D|*SP',
         advance_stack_pointer()))
 
+def translate_return():
+    return '\n'.join((
+        '// === return ===',
+        '@SP',
+        'A=M-1',
+        'D=M // read return value',
+        '@return_value',
+        'M=D // save return value in var return_value',
+
+        '@LCL',
+        'D=M',
+        '@SP',
+        'M=D-1 // SP points to LCL-1',
+        'A=M',
+        'D=M // read prev THAT value',
+        '@THAT',
+        'M=D // restore THAT',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M',
+        'D=M // read prev THIS value',
+        '@THIS',
+        'M=D // restore THIS',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M',
+        'D=M // read prev ARG value',
+        '@ARG',
+        'M=D // restore ARG',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M',
+        'D=M // read prev LCL value',
+        '@LCL',
+        'M=D // restore LCL',
+        '@SP',
+        'M=M-1 // pop',
+        'A=M',
+        'D=M',
+        '@return_addr',
+        'M=D // save return address in var return_addr',
+
+        '@return_value',
+        'D=M // hold return value in D',
+        '@SP',
+        'M=M-1 // pop to restore SP value',
+        'A=M-1',
+        'M=D // push return value to top of the stack',
+
+        '@return_addr',
+        'A=M // read return address value',
+        '0;JMP',
+        '\n'))
+
 def pop_assign_addr_to_a():
     return '\n'.join((
         '@SP',
@@ -275,7 +348,8 @@ OP_TRANSLATE_FUNCTIONS = {
     'gt': translate_gt,
     'and': translate_and,
     'or': translate_or,
-    'not': translate_not }
+    'not': translate_not,
+    'return': translate_return }
 
 def main():
     if len(sys.argv) != 2 or not sys.argv[1].endswith('.vm'):
