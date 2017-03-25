@@ -33,8 +33,27 @@ def parse(line):
             return translate_push(words[1], words[2])
         elif op == 'pop':
             return translate_pop(words[1], words[2])
+        elif op == 'label':
+            return translate_label(words[1])
+        elif op == 'if-goto':
+            return translate_if_goto(words[1])
         else:
             raise ValueError('Illegal stack operator: {}'.format(op))
+
+def translate_label(label_name):
+    return '\n'.join((
+        '// === label {name} ===',
+        '(global${name})',
+        '\n')).format(name=label_name)
+
+def translate_if_goto(label_name):
+    return '\n'.join((
+        '// === if-goto {name} ===',
+        pop_assign_addr_to_a(),
+        'D=M',
+        '@{name}',
+        'D;JNE',
+        '\n')).format(name=label_name)
 
 SEGMENT_START_MAP = {
         'local': 'LCL',
