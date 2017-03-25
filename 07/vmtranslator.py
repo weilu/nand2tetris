@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import sys
+from os import path, sep
+from glob import glob
 
 ASM_END_BLOCK = '\n'.join((
     '(END)',
@@ -41,15 +43,58 @@ def parse(line):
             return translate_goto(words[1])
         elif op == 'function':
             return translate_function(words[1], words[2])
+        elif op == 'call':
+            return translate_call_function(words[1], words[2])
         else:
             raise ValueError('Illegal operator: {}'.format(op))
 
+def push_caller_frame_to_stack(segment_name):
+    return '\n'.join((
+        '@{name}',
+        'D=M',
+        '@SP',
+        'A=M',
+        'M=D',
+        advance_stack_pointer())).format(name=segment_name)
+
+def translate_call_function(function_name, arg_count):
+    return '\n'.join((
+        '// === call function {name} {count} ===',
+        '@{name}$return_addr',
+        'D=A',
+        '@SP',
+        'A=M',
+        'M=D',
+        advance_stack_pointer(),
+        push_caller_frame_to_stack('LCL'),
+        push_caller_frame_to_stack('ARG'),
+        push_caller_frame_to_stack('THIS'),
+        push_caller_frame_to_stack('THAT'),
+        '@{count}',
+        'D=A',
+        '@5',
+        'D=D+A // save arg offset in D',
+        '@SP',
+        'D=M-D',
+        '@ARG',
+        'M=D // ARG=SP-n-5',
+        '@SP',
+        'D=M',
+        '@LCL',
+        'M=D // LCL=SP',
+        '@{name}',
+        '0;JMP // goto f',
+        '({name}$return_addr)',
+        '\n')).format(name=function_name, count=arg_count)
+
 def translate_function(function_name, arg_count):
     return '\n'.join((
-        '// === function {name} ===',
+        '// === function {name} {count} ===',
         '({name})',
         '@{count}',
         'D=A-1',
+        '@{name}$END_INIT_LOCALS',
+        'D;JLT',
         '({name}$INIT_LOCALS)',
         '  @LCL',
         '  A=M+D',
@@ -59,6 +104,7 @@ def translate_function(function_name, arg_count):
         '  M=M+1 // forward SP to skip local pointer addresses',
         '  @{name}$INIT_LOCALS',
         '  D;JGE',
+        '({name}$END_INIT_LOCALS)',
         '\n')).format(name=function_name, count=arg_count)
 
 def translate_label(label_name):
@@ -282,49 +328,54 @@ def translate_return():
         'D=M // read return value',
         '@return_value',
         'M=D // save return value in var return_value',
+        '@ARG',
+        'A=M',
+        'D=A',
+        '@SP',
+        'M=D // point SP to return value but do not write return value yet',
 
         '@LCL',
         'D=M',
-        '@SP',
-        'M=D-1 // SP points to LCL-1',
+        '@tmpsp',
+        'M=D-1 // tmpsp points to LCL-1',
         'A=M',
         'D=M // read prev THAT value',
         '@THAT',
         'M=D // restore THAT',
-        '@SP',
+        '@tmpsp',
         'M=M-1 // pop',
         'A=M',
         'D=M // read prev THIS value',
         '@THIS',
         'M=D // restore THIS',
-        '@SP',
+        '@tmpsp',
         'M=M-1 // pop',
         'A=M',
         'D=M // read prev ARG value',
         '@ARG',
         'M=D // restore ARG',
-        '@SP',
+        '@tmpsp',
         'M=M-1 // pop',
         'A=M',
         'D=M // read prev LCL value',
         '@LCL',
         'M=D // restore LCL',
-        '@SP',
+        '@tmpsp',
         'M=M-1 // pop',
         'A=M',
-        'D=M',
+        'D=M // read return address value',
         '@return_addr',
         'M=D // save return address in var return_addr',
 
         '@return_value',
-        'D=M // hold return value in D',
+        'D=M',
         '@SP',
-        'M=M-1 // pop to restore SP value',
-        'A=M-1',
-        'M=D // push return value to top of the stack',
+        'A=M',
+        'M=D // write return value to SP',
+        advance_stack_pointer(),
 
         '@return_addr',
-        'A=M // read return address value',
+        'A=M',
         '0;JMP',
         '\n'))
 
@@ -359,20 +410,33 @@ OP_TRANSLATE_FUNCTIONS = {
     'return': translate_return }
 
 def main():
-    if len(sys.argv) != 2 or not sys.argv[1].endswith('.vm'):
+    if len(sys.argv) != 2:
         print('Usage: ./vmtranslator.py input.vm')
         return
 
     infile = sys.argv[1]
+    if not infile.endswith('.vm') and not path.isdir(infile):
+        print('Usage: ./vmtranslator.py input.vm')
+        return
+
     global filename
     filename = infile.split('/')[-1].replace('.vm', '')
     outfile = infile.replace('vm', 'asm')
+
+    infiles = [infile]
+    if path.isdir(infile):
+        infile = path.abspath(infile)
+        infiles = glob(path.join(infile, '*.vm'))
+        filename = infile.split('/')[-1]
+        outfile = path.join(infile, '{}.asm'.format(filename))
+
     with open(outfile, 'w') as output_file:
-        with open(infile) as input_file:
-            for line in input_file:
-                asm_block = parse(line)
-                output_file.write(asm_block)
-            output_file.write(ASM_END_BLOCK)
+        for infile in infiles:
+            with open(infile) as input_file:
+                for line in input_file:
+                    asm_block = parse(line)
+                    output_file.write(asm_block)
+                output_file.write(ASM_END_BLOCK)
 
 if __name__ == "__main__":
     main()

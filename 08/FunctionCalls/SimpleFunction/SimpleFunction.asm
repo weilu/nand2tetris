@@ -1,7 +1,9 @@
-// === function SimpleFunction.test ===
+// === function SimpleFunction.test 2 ===
 (SimpleFunction.test)
 @2
 D=A-1
+@SimpleFunction.test$END_INIT_LOCALS
+D;JLT
 (SimpleFunction.test$INIT_LOCALS)
   @LCL
   A=M+D
@@ -11,6 +13,7 @@ D=A-1
   M=M+1 // forward SP to skip local pointer addresses
   @SimpleFunction.test$INIT_LOCALS
   D;JGE
+(SimpleFunction.test$END_INIT_LOCALS)
 
 // === push local 0 ===
 @LCL // *LCL=D
@@ -108,47 +111,41 @@ M=M+1
 @SP
 A=M-1
 D=M // read return value
-@return_value
-M=D // save return value in var return_value
+@ARG
+A=M
+M=D // put return value in ARG 0
+D=A+1
+@SP
+M=D // point SP to one after return value
 @LCL
 D=M
-@SP
-M=D-1 // SP points to LCL-1
+@tmpsp
+M=D-1 // tmpsp points to LCL-1
 A=M
 D=M // read prev THAT value
 @THAT
 M=D // restore THAT
-@SP
+@tmpsp
 M=M-1 // pop
 A=M
 D=M // read prev THIS value
 @THIS
 M=D // restore THIS
-@SP
+@tmpsp
 M=M-1 // pop
 A=M
 D=M // read prev ARG value
 @ARG
 M=D // restore ARG
-@SP
+@tmpsp
 M=M-1 // pop
 A=M
 D=M // read prev LCL value
 @LCL
 M=D // restore LCL
-@SP
+@tmpsp
 M=M-1 // pop
 A=M
-D=M
-@return_addr
-M=D // save return address in var return_addr
-@return_value
-D=M // hold return value in D
-@SP
-M=M-1 // pop to restore SP value
-A=M-1
-M=D // push return value to top of the stack
-@return_addr
 A=M // read return address value
 0;JMP
 
