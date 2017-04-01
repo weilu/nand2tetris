@@ -11,7 +11,6 @@ ASM_END_BLOCK = '\n'.join((
 
 boolean_label_counter = 0
 call_counter = 0
-filename = ''
 
 def strip_comments(line):
     try:
@@ -19,7 +18,7 @@ def strip_comments(line):
     except ValueError:
         return line.strip()
 
-def parse(line):
+def parse(line, filename):
     line = strip_comments(line)
     if not line:
         return ''
@@ -33,9 +32,9 @@ def parse(line):
         return OP_TRANSLATE_FUNCTIONS[op]()
     else:
         if op == 'push':
-            return translate_push(words[1], words[2])
+            return translate_push(words[1], words[2], filename)
         elif op == 'pop':
-            return translate_pop(words[1], words[2])
+            return translate_pop(words[1], words[2], filename)
         elif op == 'label':
             return translate_label(words[1])
         elif op == 'if-goto':
@@ -148,7 +147,7 @@ def get_pointer_addr(i):
     else:
         raise ValueError('Illegal value for i={} in `push pointer i`'.format(i))
 
-def translate_push(segment, i):
+def translate_push(segment, i, filename):
     if segment == 'constant':
         return '\n'.join((
             '// === push constant {i} ===',
@@ -198,7 +197,7 @@ def push_read_start_from(register, segment, i):
         advance_stack_pointer())).format(register=register, segment=segment, i=i,
                 start=SEGMENT_START_MAP[segment])
 
-def translate_pop(segment, i):
+def translate_pop(segment, i, filename):
     if segment == 'constant':
         raise ValueError('Cannot pop constant. Illegal vm command')
     elif segment in set(('local', 'argument', 'this', 'that')):
@@ -429,24 +428,24 @@ def main():
         print('Usage: ./vmtranslator.py input.vm')
         return
 
-    global filename
-    filename = infile.split('/')[-1].replace('.vm', '')
     outfile = infile.replace('vm', 'asm')
 
     infiles = [infile]
     if path.isdir(infile):
         infile = path.abspath(infile)
         infiles = glob(path.join(infile, '*.vm'))
-        filename = infile.split('/')[-1]
-        outfile = path.join(infile, '{}.asm'.format(filename))
+        outfile = path.join(infile, '{}.asm'.format(infile.split('/')[-1]))
 
     with open(outfile, 'w') as output_file:
         output_file.write(bootstrap())
         for infile in infiles:
+            filename = infile.split('/')[-1].replace('.vm', '')
             with open(infile) as input_file:
                 for line in input_file:
-                    asm_block = parse(line)
+                    asm_block = parse(line, filename)
                     output_file.write(asm_block)
+                    # if asm_block:
+                    #     output_file.write('@1337\n') # debug line
 
 if __name__ == "__main__":
     main()
