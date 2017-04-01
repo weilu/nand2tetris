@@ -471,57 +471,51 @@ M=D+M // *SP=D+*SP
 M=M+1
 
 // === return ===
-@SP
-A=M-1
-D=M // read return value
-@return_value
-M=D // save return value in var return_value
-@ARG
-A=M
-D=A
-@SP
-M=D // point SP to return value but do not write return value yet
 @LCL
 D=M
-@tmpsp
-M=D-1 // tmpsp points to LCL-1
+@frame
+M=D // frame = LCL
+@return_addr
+M=D
+@5
+D=A
+@return_addr
+A=M-D
+D=M
+@return_addr
+M=D // return_addr = *(frame-5)
+@SP
+A=M-1 // pop
+D=M // read return value
+@ARG
 A=M
+M=D // save return value in current arg0
+@ARG
+D=M+1 // prepare SP restoration
+@SP
+M=D // SP = arg + 1
+@frame
+D=M
+@tmpsp
+AM=D-1 // tmpsp points to frame-1
 D=M // read prev THAT value
 @THAT
 M=D // restore THAT
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev THIS value
 @THIS
 M=D // restore THIS
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev ARG value
 @ARG
 M=D // restore ARG
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev LCL value
 @LCL
 M=D // restore LCL
-@tmpsp
-M=M-1 // pop
-A=M
-D=M // read return address value
-@return_addr
-M=D // save return address in var return_addr
-@return_value
-D=M
-@SP
-A=M
-M=D // write return value to SP
-@SP // SP++
-M=M+1
-
-
 @return_addr
 A=M
 0;JMP
@@ -621,57 +615,51 @@ M=D+M // *SP=D+*SP
 M=M+1
 
 // === return ===
-@SP
-A=M-1
-D=M // read return value
-@return_value
-M=D // save return value in var return_value
-@ARG
-A=M
-D=A
-@SP
-M=D // point SP to return value but do not write return value yet
 @LCL
 D=M
-@tmpsp
-M=D-1 // tmpsp points to LCL-1
+@frame
+M=D // frame = LCL
+@return_addr
+M=D
+@5
+D=A
+@return_addr
+A=M-D
+D=M
+@return_addr
+M=D // return_addr = *(frame-5)
+@SP
+A=M-1 // pop
+D=M // read return value
+@ARG
 A=M
+M=D // save return value in current arg0
+@ARG
+D=M+1 // prepare SP restoration
+@SP
+M=D // SP = arg + 1
+@frame
+D=M
+@tmpsp
+AM=D-1 // tmpsp points to frame-1
 D=M // read prev THAT value
 @THAT
 M=D // restore THAT
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev THIS value
 @THIS
 M=D // restore THIS
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev ARG value
 @ARG
 M=D // restore ARG
 @tmpsp
-M=M-1 // pop
-A=M
+AM=M-1 // pop
 D=M // read prev LCL value
 @LCL
 M=D // restore LCL
-@tmpsp
-M=M-1 // pop
-A=M
-D=M // read return address value
-@return_addr
-M=D // save return address in var return_addr
-@return_value
-D=M
-@SP
-A=M
-M=D // write return value to SP
-@SP // SP++
-M=M+1
-
-
 @return_addr
 A=M
 0;JMP
