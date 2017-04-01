@@ -10,6 +10,7 @@ ASM_END_BLOCK = '\n'.join((
     '  0;JMP'))
 
 boolean_label_counter = 0
+call_counter = 0
 filename = ''
 
 def strip_comments(line):
@@ -58,9 +59,11 @@ def push_caller_frame_to_stack(segment_name):
         advance_stack_pointer())).format(name=segment_name)
 
 def translate_call_function(function_name, arg_count):
+    global call_counter
+    call_counter += 1
     return '\n'.join((
         '// === call function {name} {count} ===',
-        '@{name}$return_addr',
+        '@{name}_{call_counter}$return_addr',
         'D=A',
         '@SP',
         'A=M',
@@ -84,8 +87,8 @@ def translate_call_function(function_name, arg_count):
         'M=D // LCL=SP',
         '@{name}',
         '0;JMP // goto f',
-        '({name}$return_addr)',
-        '\n')).format(name=function_name, count=arg_count)
+        '({name}_{call_counter}$return_addr)',
+        '\n')).format(name=function_name, count=arg_count, call_counter=call_counter)
 
 def translate_function(function_name, arg_count):
     return '\n'.join((
@@ -406,6 +409,16 @@ OP_TRANSLATE_FUNCTIONS = {
     'not': translate_not,
     'return': translate_return }
 
+def bootstrap():
+    return '\n'.join((
+        '@261',
+        'D=A',
+        '@SP',
+        'M=D // init SP',
+        '@Sys.init',
+        '0;JMP // goto Sys.init',
+        '\n'))
+
 def main():
     if len(sys.argv) != 2:
         print('Usage: ./vmtranslator.py input.vm')
@@ -428,12 +441,12 @@ def main():
         outfile = path.join(infile, '{}.asm'.format(filename))
 
     with open(outfile, 'w') as output_file:
+        output_file.write(bootstrap())
         for infile in infiles:
             with open(infile) as input_file:
                 for line in input_file:
                     asm_block = parse(line)
                     output_file.write(asm_block)
-                output_file.write(ASM_END_BLOCK)
 
 if __name__ == "__main__":
     main()
