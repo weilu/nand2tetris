@@ -1,0 +1,72 @@
+/** Implements a graphical obstacle. */
+class Obstacle {
+
+    static int startY;
+
+    field int x, y; // screen location of the obstacle
+    field int length; // length of this obstacle, in pixels
+
+    function void init() {
+        let startY = 245;
+        return;
+    }
+
+    /** Constructs a new square with a given location and length. */
+    constructor Obstacle new(int ax, int ay, int alength) {
+        let x = ax;
+        let y = ay;
+        let length = alength;
+        do draw();
+        return this;
+    }
+
+    /** Disposes this square. */
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    /** Draws the obstacle on the screen. */
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawRectangle(x, y, x + length, y + 10);
+        return;
+    }
+
+    /** Moves the obstacle up by 2 pixels. */
+    method void moveUp() {
+        if (y > 1) {
+            // erase bottom
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, (y + 10) - 1, x + length, y + 10);
+            let y = y - 2;
+            // draw top
+            do Screen.setColor(true);
+            do Screen.drawRectangle(x, y, x + length, y + 1);
+        } else {
+            // hit the top now we rotate the obstacle to the bottom
+            do Screen.setColor(false);
+            do Screen.drawRectangle(x, y, x + length, y + 10);
+            let y = startY;
+            do draw();
+        }
+        return;
+    }
+
+    method boolean touched(Square s) {
+        var boolean s_left_of_obstacle;
+        var boolean s_right_of_obstacle;
+        var boolean s_above_obstacle;
+        var boolean s_below_obstacle;
+
+        let s_left_of_obstacle = ((s.getX() + s.getSize()) < x);
+        let s_right_of_obstacle = (s.getX() > (x + length));
+        let s_above_obstacle = ((s.getY() + s.getSize()) < y);
+        let s_below_obstacle = (s.getY() > (y + 10)); //false
+        return ~(s_left_of_obstacle | s_right_of_obstacle | s_above_obstacle | s_below_obstacle);
+    }
+
+    method int getY() {
+        return y;
+    }
+}
