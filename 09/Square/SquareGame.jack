@@ -18,6 +18,7 @@ class SquareGame {
     field Square square; // the square of this game
     field Array obstacles;
     field int numObstacles;
+    field int score;
     field int direction; // the square's current direction: 
     // 0=none, 1=up, 2=down, 3=left, 4=right
 
@@ -27,6 +28,7 @@ class SquareGame {
         // of the screen.
         let square = Square.new(0, 215, 30);
         let direction = 0;  // initial state is no movement
+        let score = 0;
 
         // initialize obstacles
         do Obstacle.init();
@@ -98,21 +100,45 @@ class SquareGame {
         return;
     }
 
+    method void updateScore() {
+        let score = score + 20;
+        do Output.moveCursor(0, 52);
+        do Output.printString("Score: ");
+        do Output.printInt(score);
+        return;
+    }
+
+    method boolean updateGameObjects() {
+        do moveSquare();
+        do moveObstacles();
+        do updateScore();
+        if (square.reachedTop() | square.reachedBottom()) {
+            do Output.moveCursor(11, 27);
+            do Output.printString("Game Over");
+            return true;
+        }
+
+        if (score > 19999) {
+            do Output.moveCursor(11, 27);
+            do Output.printString("You Won!");
+            return true;
+        }
+
+        return false;
+    }
+
     /** Runs the game: handles the user's inputs and moves the square accordingly */
     method void run() {
         var char key;  // the key currently pressed by the user
-        var boolean exit;
+        var boolean exit, endOfGame;
         let exit = false;
 
         while (~exit) {
             // waits for a key to be pressed
             while (key = 0) {
                 let key = Keyboard.keyPressed();
-                do moveSquare();
-                do moveObstacles();
-                if (square.reachedTop() | square.reachedBottom()) {
-                    do Output.moveCursor(11, 27);
-                    do Output.printString("Game Over");
+                let endOfGame = updateGameObjects();
+                if (endOfGame) {
                     return;
                 }
             }
@@ -123,11 +149,8 @@ class SquareGame {
             // waits for the key to be released
             while (~(key = 0)) {
                 let key = Keyboard.keyPressed();
-                do moveSquare();
-                do moveObstacles();
-                if (square.reachedTop() | square.reachedBottom()) {
-                    do Output.moveCursor(11, 27);
-                    do Output.printString("Game Over");
+                let endOfGame = updateGameObjects();
+                if (endOfGame) {
                     return;
                 }
             }
