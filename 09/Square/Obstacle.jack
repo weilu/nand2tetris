@@ -53,7 +53,7 @@ class Obstacle {
         return;
     }
 
-    method boolean touched(Square s) {
+    method boolean touched(Circle s) {
         var boolean s_left_of_obstacle;
         var boolean s_right_of_obstacle;
         var boolean s_above_obstacle;
