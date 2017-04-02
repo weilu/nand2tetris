@@ -1,32 +1,33 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/09/Square/SquareGame.jack
-
 /**
- * Implements the Square Dance game.
- * This simple game allows the user to move a black square around
- * the screen, and change the square's size during the movement.
- * When the game starts, a square of 30 by 30 pixels is shown at the
- * top-left corner of the screen. The user controls the square as follows.
- * The 4 arrow keys are used to move the square up, down, left, and right.
- * The 'z' and 'x' keys are used, respectively, to decrement and increment
- * the square's size. The 'q' key is used to quit the game.
+ * Implements the Escaping ball game.
+ * This simple game allows the user to control a falling ball and help it
+ * navigate the screen with obstacles.
+ *
+ * When the game starts, a ball of radius 15 is shown at the bottom-left corner
+ * on a platform/obstacle. The user can use the arrow keys to move the ball
+ * left or right while the platform carries the ball upward. If the ball falls
+ * off a platform it needs to land on another platform, otherwise the game
+ * ends as the poor ball falls into oblivion. If you leave the ball on a moving
+ * platform for too long the ball will be squashed by the ceiling, therefore
+ * also marks the end of the game. The longer you help the ball stay alive
+ * the higher your score is (displayed on the top right corner). Once you hit
+ * 20000, you win!
+ *
+ * When you are bored press 'q' to quit the game.
  */
 
-class SquareGame {
-    field Square square; // the square of this game
+class EscapingBallGame {
+    field Circle ball; // the ball of this game
     field Array obstacles;
     field int numObstacles;
     field int score;
-    field int direction; // the square's current direction: 
+    field int direction; // the ball's current direction: 
     // 0=none, 1=up, 2=down, 3=left, 4=right
 
-    /** Constructs a new Square Game. */
-    constructor SquareGame new() {
-        // Creates a 30 by 30 pixels square and positions it at the top-left
+    constructor EscapingBallGame new() {
+        // Creates a circle with 30px diameter and positions it at the bottom-left
         // of the screen.
-        let square = Square.new(0, 215, 30);
+        let ball = Circle.new(0, 215, 30);
         let direction = 0;  // initial state is no movement
         let score = 0;
 
@@ -53,14 +54,14 @@ class SquareGame {
             do tmp.dispose();
             let i = i + 1;
         }
-        do square.dispose();
+        do ball.dispose();
         do Memory.deAlloc(this);
         return;
     }
 
-    /** If the it touches any obstacle, move the square up otherwise it fallse down */
-    /** User can also control the obstacle to move left or right */
-    method void moveSquare() {
+    /** If the it touches any obstacle, move the ball up otherwise it fallse down */
+    /** User can also control the ball to move left or right */
+    method void moveBall() {
         var int i;
         var boolean touchedAnyObstacle;
         var Obstacle tmp;
@@ -69,19 +70,19 @@ class SquareGame {
         let touchedAnyObstacle = false;
         while (i < numObstacles) {
             let tmp = obstacles[i];
-            if (tmp.touched(square)) {
+            if (tmp.touched(ball)) {
                 let touchedAnyObstacle = true;
             }
             let i = i + 1;
         }
         if (touchedAnyObstacle) {
-            do square.moveUp();
+            do ball.moveUp();
         } else {
-            do square.moveDown();
+            do ball.moveDown();
         }
 
-        if (direction = 3) { do square.moveLeft(); }
-        if (direction = 4) { do square.moveRight(); }
+        if (direction = 3) { do ball.moveLeft(); }
+        if (direction = 4) { do ball.moveRight(); }
         return;
     }
 
@@ -100,6 +101,7 @@ class SquareGame {
         return;
     }
 
+    /** Increment score and print the updated score on top right corner of the screen */
     method void updateScore() {
         let score = score + 20;
         do Output.moveCursor(0, 52);
@@ -108,16 +110,20 @@ class SquareGame {
         return;
     }
 
+    /** Move the ball & all the obstacles on the screen, update score and return true if game ends */
     method boolean updateGameObjects() {
-        do moveSquare();
+        do moveBall();
         do moveObstacles();
         do updateScore();
-        if (square.reachedTop() | square.reachedBottom()) {
+
+        // end the game if ball is squashed or falls into void
+        if (ball.reachedTop() | ball.reachedBottom()) {
             do Output.moveCursor(11, 27);
             do Output.printString("Game Over");
             return true;
         }
 
+        // end the game if the user accumulates 20000 points
         if (score > 19999) {
             do Output.moveCursor(11, 27);
             do Output.printString("You Won!");
@@ -127,7 +133,7 @@ class SquareGame {
         return false;
     }
 
-    /** Runs the game: handles the user's inputs and moves the square accordingly */
+    /** Runs the game: handles the user's inputs and moves the objects accordingly */
     method void run() {
         var char key;  // the key currently pressed by the user
         var boolean exit, endOfGame;
