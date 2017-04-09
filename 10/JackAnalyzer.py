@@ -50,7 +50,7 @@ def tokenize(line):
     tokens = []
     token_start = 0
     string_start = False
-    for m in re.finditer(' |\(|\)|\[|\]|\.|"|;|,|~|$', line):
+    for m in re.finditer(' |\(|\)|\[|\]|\.|"|;|,|~|-|$', line):
         delimiter = m.group()
         if delimiter == '"':
             if not string_start: # open quote
