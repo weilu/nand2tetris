@@ -1,0 +1,10 @@
+/** Initializes a new Escaping Ball game and starts running it. */
+class Main {
+    function void main() {
+        var EscapingBallGame game;
+        let game = EscapingBallGame.new();
+        do game.run();
+        do game.dispose();
+        return;
+    }
+}
