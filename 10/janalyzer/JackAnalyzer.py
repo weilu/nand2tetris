@@ -1,8 +1,9 @@
 import sys
 import re
 from os import path
-from janalyzer.tokenizer import tokenize
-from janalyzer.parser import Parser
+from tokenizer import tokenize
+from parser import Parser
+from glob import glob
 
 
 def strip_comments(source):
@@ -22,16 +23,13 @@ def main():
         print('Usage: ./JackAnalyzer.py input.jack')
         return
 
-
     infiles = [infile]
     if path.isdir(infile):
         infile = path.abspath(infile)
         infiles = glob(path.join(infile, '*.jack'))
 
-
     for infile in infiles:
-        # TODO: drop "Out" prefix before submission
-        outfile = infile.replace('.jack', 'Out.xml')
+        outfile = infile.replace('.jack', '.xml')
         with open(outfile, 'w') as output_file:
             tokens = []
             with open(infile) as input_file:
@@ -41,6 +39,7 @@ def main():
                     tokens = tokens + tokenize(line.strip())
             parser = Parser(tokens)
             output_file.write(parser.compile())
+
 
 if __name__ == "__main__":
     main()
